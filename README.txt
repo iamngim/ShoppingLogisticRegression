@@ -61,21 +61,31 @@ Các bước chính:
         - Bỏ giao dịch Quantity ≤ 0 và Price ≤ 0
 
         - Chuyển InvoiceDate → timestamp
+
     ✔ Tạo các feature:
+
         - RFM & nâng cao:
 
             Recency
+
             Frequency
+
             Monetary
+
             CustomerLifeSpan
+
             TotalQuarters
+
             AvgOrderValue
+
             MonetaryPerQuarter
 
         - Theo quý (Quarter-based)
 
             QuarterAmount
+
             QuarterFrequency
+
             QuarterAvgValue
 
         - Xu hướng hành vi (Trend)
@@ -87,6 +97,7 @@ Các bước chính:
         - Label = 1 nếu khách hàng có mua trong quý tiếp theo
 
         - Label = 0 nếu không có giao dịch tiếp theo
+
     ✔ Xuất dữ liệu cuối cùng
 
         - Dữ liệu được lưu tại: data/data_final.csv
@@ -146,17 +157,17 @@ Chạy lệnh: 'python MainModel.py' hoặc Run file 'MainModel.py'
 
 Pipeline sẽ tự động:
 
-    1. Đọc data_final.csv
+    ✔ Đọc data_final.csv
 
-    2. Sinh thống kê mô tả vào results/
+    ✔ Sinh thống kê mô tả vào results/
 
-    3. Train Logistic Regression
+    ✔ Train Logistic Regression
 
-    4. Đánh giá mô hình
+    ✔ Đánh giá mô hình
 
-    5. Vẽ biểu đồ ROC & Feature Importance
+    ✔ Vẽ biểu đồ ROC & Feature Importance
 
-    6. Hoàn thành báo cáo
+    ✔ Hoàn thành báo cáo
 
 📌 7. Yêu cầu hệ thống
     |     Thành phần      |     Phiên bản       |
@@ -168,5 +179,5 @@ Pipeline sẽ tự động:
     | Matplotlib          | ≥ 3.x               |
     | NumPy               | ≥ 1.20              |
 
-❤️ 7. Liên hệ / Đóng góp
+❤️ 8. Liên hệ / Đóng góp
 Bạn có thể mở issue hoặc gửi thêm yêu cầu để mở rộng mô hình, cải thiện kết quả hoặc thêm dashboard trực quan.
