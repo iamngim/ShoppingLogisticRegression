@@ -33,7 +33,7 @@ def main():
 
     # 5. ROC CURVE
     fpr, tpr = extract_roc_points(predictions)
-    plot_roc(fpr, tpr, metrics["AUC"])
+    plot_roc(fpr, tpr, metrics["AUC-ROC"])
 
     # 6. FEATURE IMPORTANCE
     plot_feature_importance(model.coefficients, feature_cols)
