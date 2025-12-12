@@ -1,9 +1,9 @@
+from numpy import sign
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 from pyspark.sql.window import Window
 
 import os
-import shutil
 
 
 # Tạo Spark session
@@ -31,8 +31,8 @@ def clean_data(df):
                        to_timestamp("InvoiceDate", "M/d/yyyy H:mm"))
 
     df = df.withColumn("Year", year("InvoiceDate")) \
-           .withColumn("Quarter", quarter("InvoiceDate")) \
-           .withColumn("TotalAmount", col("Quantity") * col("Price"))
+        .withColumn("Quarter", quarter("InvoiceDate")) \
+        .withColumn("TotalAmount", col("Quantity") * col("Price"))
 
     return df
 
@@ -58,8 +58,8 @@ def feature_rfm(df):
 # Feature theo quý
 def feature_quarter(df):
     q = df.groupBy("Customer ID", "Year", "Quarter") \
-          .agg(sum("TotalAmount").alias("QuarterAmount"),
-               countDistinct("Invoice").alias("QuarterFrequency"))
+        .agg(sum("TotalAmount").alias("QuarterAmount"),
+             countDistinct("Invoice").alias("QuarterFrequency"))
 
     q = q.withColumn("QuarterAvgValue",
                      col("QuarterAmount") / col("QuarterFrequency"))
@@ -121,49 +121,28 @@ def merge_features(label_df, rfm):
 
     # Join RFM
     final = label_df.join(rfm, label_df.CustomerID == rfm["Customer ID"], "left") \
-                    .drop("Customer ID", "ID_valid")
+        .drop("Customer ID", "ID_valid")
 
     cols = [c for c in final.columns if c != "label"] + ["label"]
     return final.select(cols)
 
 
-
-# Save file output
+# Save file output - Dùng Pandas thay vì Spark CSV
 def save_output(df):
     output_folder = "../data"
-    temp_folder = "../data/temp_output"  # Thư mục tạm
-
-    # Bước 1: gộp về 1 partition và lưu tạm
-    df.coalesce(1).write.csv(temp_folder, header=True, mode="overwrite")
-
-    # Bước 2: tìm file part-0000*.csv
-    part_file = ""
-    for file in os.listdir(temp_folder):
-        if file.startswith("part") and file.endswith(".csv"):
-            part_file = file
-            break
-
-    if not part_file:
-        raise Exception("❌ Không tìm thấy file CSV được Spark xuất ra!")
 
     # Tạo thư mục output nếu chưa tồn tại
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    # Bước 3: di chuyển & đổi tên
-    src = os.path.join(temp_folder, part_file)
-    dst = os.path.join(output_folder, "data_final.csv")
+    # Chuyển Spark DataFrame sang Pandas
+    pandas_df = df.toPandas()
 
-    # Nếu đã có file cũ → xoá để tránh lỗi
-    if os.path.exists(dst):
-        os.remove(dst)
+    # Lưu file CSV bằng Pandas (không cần Hadoop)
+    output_path = os.path.join(output_folder, "data_final.csv")
+    pandas_df.to_csv(output_path, index=False)
 
-    shutil.move(src, dst)
-
-    # Xóa thư mục tạm
-    shutil.rmtree(temp_folder)
-
-    print("Lưu thành công tại: ", os.path.normpath(dst))
+    print("Lưu thành công tại: ", os.path.normpath(output_path))
 
 
 # Pipeline chính
@@ -185,6 +164,7 @@ def preprocess(path):
 
     print("Pipeline hoàn tất. Tổng số dòng:", final_df.count())
     return final_df
+
 
 if __name__ == "__main__":
     preprocess("../data/data.csv")
