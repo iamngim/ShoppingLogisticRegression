@@ -2,8 +2,6 @@ import pandas as pd
 import numpy as np
 import os
 from pyspark.ml.evaluation import BinaryClassificationEvaluator, MulticlassClassificationEvaluator
-from sklearn.metrics import matthews_corrcoef, roc_curve, auc
-
 
 def evaluate_model(pred):
     # BASIC METRICS
@@ -121,17 +119,22 @@ def evaluate_model(pred):
     return metrics, cm
 
 
-def save_evaluation_to_file(metrics, cm, folder="../results"):
-    """Lưu đánh giá mô hình thành CSV files"""
-    os.makedirs(folder, exist_ok=True)
+def save_evaluation_to_file(metrics, cm):
+    SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.path.dirname(SRC_DIR)
+    RESULT_DIR = os.path.join(BASE_DIR, "results")
+
+    os.makedirs(RESULT_DIR, exist_ok=True)
 
     # Metrics → CSV
-    metrics_df = pd.DataFrame(list(metrics.items()), columns=["Metric", "Value"])
-    metrics_df.to_csv(f"{folder}/model_evaluation.csv", index=False)
+    metrics_df = pd.DataFrame(
+        [{"Metric": k, "Value": v} for k, v in metrics.items()]
+    )
+    metrics_df.to_csv(os.path.join(RESULT_DIR, "model_evaluation.csv"), index=False)
 
-    # Confusion matrix → CSV
-    cm.to_csv(f"{folder}/confusion_matrix.csv", index=False)
+    # Confusion Matrix (2x2) → CSV
+    cm.to_csv(os.path.join(RESULT_DIR, "confusion_matrix.csv"))
 
-    print(f"✅ Đã lưu tất cả đánh giá mô hình dạng CSV vào thư mục: {folder}")
-    print(f"   - {folder}/model_evaluation.csv")
-    print(f"   - {folder}/confusion_matrix.csv")
+    print("✅ Đã lưu đánh giá mô hình:")
+    print(f"   - {RESULT_DIR}/model_evaluation.csv")
+    print(f"   - {RESULT_DIR}/confusion_matrix.csv")

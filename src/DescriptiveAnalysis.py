@@ -4,42 +4,74 @@ import os
 
 
 def descriptive_statistics(df):
-    print("\n📌 DESCRIPTIVE STATISTICS")
-    df.describe().show()
+    """
+    In thống kê mô tả ra console (phục vụ debug + bảo vệ)
+    """
+    print("\n" + "=" * 70)
+    print("DESCRIPTIVE STATISTICS")
+    print("=" * 70)
 
+    # 1. Tổng quan
+    df.describe().show(truncate=False)
+
+    # 2. Phân phối nhãn
     print("\n📌 LABEL DISTRIBUTION")
     df.groupBy("label").count().orderBy("label").show()
 
+    print("=" * 70)
 
-def save_descriptive_to_file(df, folder="../results"):
-    os.makedirs(folder, exist_ok=True)
 
-    # 1. Describe()
-    desc = df.describe().toPandas()
-    desc.to_csv(f"{folder}/descriptive_stats.csv", index=False)
+def save_descriptive_to_file(df):
+    """
+    Lưu toàn bộ thống kê mô tả phục vụ Flask
+    """
+    # ===== PATH =====
+    SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.path.dirname(SRC_DIR)
+    RESULT_DIR = os.path.join(BASE_DIR, "results")
 
-    # 2. Label distribution
-    label_dist = df.groupBy("label").count().toPandas()
-    label_dist.to_csv(f"{folder}/label_distribution.csv", index=False)
+    os.makedirs(RESULT_DIR, exist_ok=True)
 
-    # 3. Quartiles (Q1, Median, Q3)
-    q_data = []
-    numeric_cols = [c for c in df.columns if c not in ["CustomerID", "label"]]
-    for col_name in numeric_cols:
-        q = df.approxQuantile(col_name, [0.25, 0.5, 0.75], 0.01)
-        q_data.append([col_name, q[0], q[1], q[2]])
+    # ===== NUMERIC COLUMNS =====
+    numeric_cols = [
+        c for c, t in df.dtypes
+        if t in ("int", "double") and c not in ["CustomerID", "label"]
+    ]
 
-    pd.DataFrame(q_data, columns=["Feature", "Q1", "Median", "Q3"]) \
-        .to_csv(f"{folder}/quartiles.csv", index=False)
+    summary = []
 
-    # 4. Skewness + Kurtosis
-    sk_data = []
-    for col_name in numeric_cols:
-        sk = df.select(skewness(col_name)).first()[0]
-        ku = df.select(kurtosis(col_name)).first()[0]
-        sk_data.append([col_name, sk, ku])
+    for c in numeric_cols:
+        q1, median, q3 = df.approxQuantile(c, [0.25, 0.5, 0.75], 0.01)
 
-    pd.DataFrame(sk_data, columns=["Feature", "Skewness", "Kurtosis"]) \
-        .to_csv(f"{folder}/skewness_kurtosis.csv", index=False)
+        row = {
+            "Feature": c,
+            "Count": df.count(),
+            "Mean": df.select(mean(c)).first()[0],
+            "Median": median,
+            "Std": df.select(stddev(c)).first()[0],
+            "Variance": df.select(variance(c)).first()[0],
+            "Min": df.select(min(c)).first()[0],
+            "Max": df.select(max(c)).first()[0],
+            "Q1": q1,
+            "Q3": q3,
+            "Skewness": df.select(skewness(c)).first()[0],
+            "Kurtosis": df.select(kurtosis(c)).first()[0]
+        }
 
-    print("📁 Đã lưu toàn bộ thống kê mô tả dạng CSV vào thư mục:", folder)
+        summary.append(row)
+
+    # ===== SAVE CSV =====
+    pd.DataFrame(summary).to_csv(
+        os.path.join(RESULT_DIR, "descriptive_statistics.csv"),
+        index=False
+    )
+
+    # Label distribution
+    df.groupBy("label").count().toPandas().to_csv(
+        os.path.join(RESULT_DIR, "label_distribution.csv"),
+        index=False
+    )
+
+    print("✅ Đã lưu thống kê mô tả:")
+    print("   - results/descriptive_statistics.csv")
+    print("   - results/label_distribution.csv")

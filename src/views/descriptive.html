@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3 class="fw-bold mb-4 text-primary">
+    <i class="bi bi-bar-chart-fill"></i>
+    PHÂN TÍCH THỐNG KÊ MÔ TẢ
+</h3>
+
+<!-- Tiêu đề + Nút Setting -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-semibold mb-0 text-start">
+        Thống kê mô tả các đặc trưng
+    </h5>
+    <button id="togglePanelBtn"
+            class="btn btn-sm btn-outline-secondary p-1 rounded-circle"
+            style="width:30px; height:30px; font-size:14px; line-height:1;"
+            title="Tùy chọn hiển thị">
+        <i class="bi bi-gear-fill"></i>
+    </button>
+</div>
+
+
+<!-- Panel ẩn ===== -->
+<div id="controlPanel"
+     class="card shadow-sm p-3 border-0"
+     style="position:absolute; right:50px; top:160px; display:none; z-index:1000; width:auto; min-width:fit-content; max-width:fit-content;">
+    <h6 class="fw-bold text-center mb-2">Tùy chọn hiển thị</h6>
+
+    <div class="form-check mb-1">
+        <input class="form-check-input" type="radio" name="viewMode" id="optTable" checked>
+        <label class="form-check-label" for="optTable">Bảng thống kê</label>
+    </div>
+
+    <div class="form-check mb-1">
+        <input class="form-check-input" type="radio" name="viewMode" id="optChart">
+        <label class="form-check-label" for="optChart">Biểu đồ</label>
+    </div>
+
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="viewMode" id="optBoth">
+        <label class="form-check-label" for="optBoth">Tất cả</label>
+    </div>
+</div>
+
+<!-- Bảng thống kê mô tả -->
+<div id="tableSection" class="card p-4 mb-4 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Đặc trưng</th>
+                    <th>Count</th>
+                    <th>Mean</th>
+                    <th>Median</th>
+                    <th>STD</th>
+                    <th>Variance</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Skewness</th>
+                    <th>Kurtosis</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in stats %}
+                <tr>
+                    <td class="fw-semibold">{{ row.Feature }}</td>
+                    <td>{{ row.Count }}</td>
+                    <td>{{ "%.4f"|format(row.Mean) }}</td>
+                    <td>{{ "%.4f"|format(row.Median) }}</td>
+                    <td>{{ "%.4f"|format(row.Std) }}</td>
+                    <td>{{ "%.4f"|format(row.Variance) }}</td>
+                    <td>{{ "%.4f"|format(row.Min) }}</td>
+                    <td>{{ "%.4f"|format(row.Max) }}</td>
+                    <td>{{ "%.4f"|format(row.Skewness) }}</td>
+                    <td>{{ "%.4f"|format(row.Kurtosis) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Biểu đồ -->
+<div id="chartSection" class="card p-4 shadow-sm" style="display: none;">
+    <h6 class="fw-semibold mb-3">Phân bố nhãn (Label Distribution)</h6>
+    <img src="/images/label_distribution.png" class="img-fluid rounded shadow-sm" alt="Label Distribution Chart">
+</div>
+
+
+<script>
+    const panel = document.getElementById("controlPanel");
+    const toggleBtn = document.getElementById("togglePanelBtn");
+    const table = document.getElementById("tableSection");
+    const chart = document.getElementById("chartSection");
+
+    // Bật / tắt panel
+    toggleBtn.addEventListener("click", () => {
+        if (panel.style.display === "none" || panel.style.display === "")
+            panel.style.display = "block";
+        else
+            panel.style.display = "none";
+    });
+
+    // Chuyển chế độ hiển thị
+    document.getElementById("optTable").addEventListener("change", () => {
+        table.style.display = "block";
+        chart.style.display = "none";
+    });
+    document.getElementById("optChart").addEventListener("change", () => {
+        table.style.display = "none";
+        chart.style.display = "block";
+    });
+    document.getElementById("optBoth").addEventListener("change", () => {
+        table.style.display = "block";
+        chart.style.display = "block";
+    });
+</script>
+
+{% endblock %}
