@@ -15,7 +15,7 @@ def descriptive_statistics(df):
     df.describe().show(truncate=False)
 
     # 2. Phân phối nhãn
-    print("\n📌 LABEL DISTRIBUTION")
+    print("\nLABEL DISTRIBUTION")
     df.groupBy("label").count().orderBy("label").show()
 
     print("=" * 70)

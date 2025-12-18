@@ -91,7 +91,7 @@ def evaluate_model(pred):
 
     # In chi tiết
     print("\n" + "=" * 60)
-    print("📊 MODEL EVALUATION RESULTS")
+    print("MODEL EVALUATION RESULTS")
     print("=" * 60)
     print(f"\n🔹 BASIC METRICS:")
     print(f"  Accuracy:        {metrics['Accuracy']:.4f}")

@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
+{% if warning %}
+<div class="alert alert-warning mb-4">
+    {{ warning }}
+</div>
+{% endif %}
 
 <h3 class="fw-bold mb-4 text-primary">
     <i class="bi bi-bar-chart-fill"></i>
@@ -19,11 +24,10 @@
     </button>
 </div>
 
-
-<!-- Panel ẩn ===== -->
+<!-- Panel tùy chọn -->
 <div id="controlPanel"
      class="card shadow-sm p-3 border-0"
-     style="position:absolute; right:50px; top:160px; display:none; z-index:1000; width:auto; min-width:fit-content; max-width:fit-content;">
+     style="position:fixed; right:40px; top:120px; display:none; z-index:1000;">
     <h6 class="fw-bold text-center mb-2">Tùy chọn hiển thị</h6>
 
     <div class="form-check mb-1">
@@ -42,7 +46,7 @@
     </div>
 </div>
 
-<!-- Bảng thống kê mô tả -->
+<!-- ================= BẢNG THỐNG KÊ ================= -->
 <div id="tableSection" class="card p-4 mb-4 shadow-sm">
     <div class="table-responsive">
         <table class="table table-bordered table-striped align-middle">
@@ -80,12 +84,77 @@
     </div>
 </div>
 
-<!-- Biểu đồ -->
-<div id="chartSection" class="card p-4 shadow-sm" style="display: none;">
-    <h6 class="fw-semibold mb-3">Phân bố nhãn (Label Distribution)</h6>
-    <img src="/images/label_distribution.png" class="img-fluid rounded shadow-sm" alt="Label Distribution Chart">
-</div>
+<!-- ================= BIỂU ĐỒ (2 CỘT) ================= -->
+<div id="chartSection" class="card p-4 shadow-sm" style="display:none;">
+    <div class="row g-4">
 
+        <!-- Label -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold text-center text-secondary mb-3">
+                        Phân phối nhãn khách hàng
+                    </h6>
+                    <img src="/images/label_distribution_desc.png"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+
+        <!-- Recency -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold text-center text-secondary mb-3">
+                        Phân phối Recency
+                    </h6>
+                    <img src="/images/recency_hist.png"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+
+        <!-- Frequency -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold text-center text-secondary mb-3">
+                        Phân phối Frequency
+                    </h6>
+                    <img src="/images/frequency_hist.png"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+
+        <!-- Monetary -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold text-center text-secondary mb-3">
+                        Phân phối Monetary
+                    </h6>
+                    <img src="/images/monetary_hist.png"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+
+        <!-- Boxplot full row -->
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold text-center text-secondary mb-3">
+                        So sánh Monetary theo nhãn
+                    </h6>
+                    <img src="/images/monetary_boxplot.png"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 <script>
     const panel = document.getElementById("controlPanel");
@@ -93,23 +162,21 @@
     const table = document.getElementById("tableSection");
     const chart = document.getElementById("chartSection");
 
-    // Bật / tắt panel
     toggleBtn.addEventListener("click", () => {
-        if (panel.style.display === "none" || panel.style.display === "")
-            panel.style.display = "block";
-        else
-            panel.style.display = "none";
+        panel.style.display = (panel.style.display === "none" || panel.style.display === "")
+            ? "block" : "none";
     });
 
-    // Chuyển chế độ hiển thị
     document.getElementById("optTable").addEventListener("change", () => {
         table.style.display = "block";
         chart.style.display = "none";
     });
+
     document.getElementById("optChart").addEventListener("change", () => {
         table.style.display = "none";
         chart.style.display = "block";
     });
+
     document.getElementById("optBoth").addEventListener("change", () => {
         table.style.display = "block";
         chart.style.display = "block";
